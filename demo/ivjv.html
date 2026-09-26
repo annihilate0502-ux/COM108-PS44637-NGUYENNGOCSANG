@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Trị ERP & E-Commerce Analytics</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .sidebar-active { background-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between p-4 overflow-y-auto">
+            <div>
+                <div class="flex items-center space-x-3 mb-6 px-2">
+                    <i data-lucide="layout-dashboard" class="w-8 h-8 text-blue-500"></i>
+                    <span class="text-xl font-bold text-white">ERP Enterprise</span>
+                </div>
+
+                <!-- Phân Quyền Selector -->
+                <div class="mb-6 bg-slate-800 p-3 rounded-lg border border-slate-700">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-2">Vai Trò Hiện Tại:</label>
+                    <select id="roleSelector" onchange="changeRole(this.value)" class="w-full bg-slate-700 text-white rounded p-1.5 text-sm outline-none border border-slate-600 focus:border-blue-500">
+                        <option value="Admin">Admin (Toàn quyền)</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Accountant">Kế toán (Finance)</option>
+                        <option value="Staff">Nhân viên (Staff)</option>
+                        <option value="User">Khách hàng (User)</option>
+                    </select>
+                </div>
+
+                <!-- Menu Items -->
+                <nav class="space-y-1" id="navMenu">
+                    <!-- Core -->
+                    <div class="text-xs font-semibold text-slate-500 uppercase px-2 py-1 mt-2">Core</div>
+                    <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 sidebar-active" data-role="Admin,Manager">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i><span>Business Analytics</span>
+                    </button>
+                    <button onclick="switchTab('orders')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800" data-role="Admin,Manager,Accountant,Staff,User">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i><span>Quản Lý Đơn Hàng</span>
+                    </button>
+
+                    <!-- Finance & Accounting (Hình 2) -->
+                     <div class="text-xs font-semibold text-slate-500 uppercase px-2 py-1 mt-4" data-role="Admin,Manager,Accountant">Finance & Accounting</div>
+                    <button onclick="switchTab('finance')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800" data-role="Admin,Manager,Accountant">
+                        <i data-lucide="wallet" class="w-4 h-4"></i><span>Tài Chính & Lương</span>
+                    </button>
+                    <button onclick="switchTab('transactions')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800" data-role="Admin,Manager,Accountant">
+                        <i data-lucide="receipt" class="w-4 h-4"></i><span>Lịch Sử Giao Dịch</span>
+                    </button>
+
+                    <!-- Human Resources (Hình 2) -->
+                    <div class="text-xs font-semibold text-slate-500 uppercase px-2 py-1 mt-4" data-role="Admin,Manager">Human Resources</div>
+                    <button onclick="switchTab('hr')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800" data-role="Admin,Manager">
+                        <i data-lucide="users" class="w-4 h-4"></i><span>Quản Lý Nhân Sự</span>
+                    </button>
+
+                    <!-- Project Management (Hình 1) -->
+                    <div class="text-xs font-semibold text-slate-500 uppercase px-2 py-1 mt-4" data-role="Admin,Manager,Staff">Project Management</div>
+                    <button onclick="switchTab('pm')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800" data-role="Admin,Manager,Staff">
+                        <i data-lucide="kanban" class="w-4 h-4"></i><span>Dự Án & Biểu Đồ Gantt</span>
+                    </button>
+
+                    <!-- e-Economo Logistics -->
+                    <div class="text-xs font-semibold text-slate-500 uppercase px-2 py-1 mt-4" data-role="Admin,Manager,Staff,User">Logistics</div>
+                    <button onclick="switchTab('logistics')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800" data-role="Admin,Manager,Staff,User">
+                        <i data-lucide="truck" class="w-4 h-4"></i><span>e-Economo Logistics</span>
+                    </button>
+
+                    <!-- Kho Hàng & Admin Test -->
+                    <div class="text-xs font-semibold text-slate-500 uppercase px-2 py-1 mt-4" data-role="Admin">Admin System</div>
+                    <button onclick="switchTab('inventory')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800" data-role="Admin,Manager">
+                        <i data-lucide="package" class="w-4 h-4"></i><span>Hàng Tồn Kho</span>
+                    </button>
+                    <button onclick="switchTab('admintest')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm hover:bg-slate-800 text-yellow-400" data-role="Admin">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i><span>Chức Năng Test Admin</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 text-xs text-slate-500 text-center">
+                ERP System v2.5 • Ngày tròn số nguyên
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 bg-gray-50 overflow-y-auto p-6">
+            
+            <!-- TOP BAR -->
+            <header class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                <div>
+                    <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Business Analytics Dashboard</h1>
+                    <p class="text-sm text-gray-500">Dữ liệu phân tích thời gian thực từ hệ thống E-Commerce</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="roleBadge" class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">Quyền: Admin</span>
+                    <div class="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold">AD</div>
+                </div>
+            </header>
+
+            <!-- TAB 1: BUSINESS ANALYTICS DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content space-y-6">
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-sm font-medium text-gray-500">Tổng Doanh Thu</div>
+                        <div class="text-2xl font-bold text-gray-900 mt-2">$11,370,043.99</div>
+                        <div class="text-xs text-green-600 mt-1">↑ 12.5% so với kỳ trước</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-sm font-medium text-gray-500">Tổng Lợi Nhuận</div>
+                        <div class="text-2xl font-bold text-green-600 mt-2">$2,215,916.27</div>
+                        <div class="text-xs text-gray-400 mt-1">Lỗ: $0.00 (Biên LN tốt)</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-sm font-medium text-gray-500">Tổng Đơn Hàng</div>
+                        <div class="text-2xl font-bold text-blue-600 mt-2">30,000</div>
+                        <div class="text-xs text-gray-400 mt-1">Đơn hoàn thành: 94.2%</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-sm font-medium text-gray-500">Doanh Thu Quý 3/2026</div>
+                        <div class="text-2xl font-bold text-purple-600 mt-2">$736,193.80</div>
+                        <div class="text-xs text-purple-500 mt-1">KPI Đạt: 105%</div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-gray-700 mb-4">Doanh Thu Theo Quý (2023 - 2026)</h3>
+                        <canvas id="quarterlyChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-gray-700 mb-4">Tỷ Lệ Phương Thức Thanh Toán</h3>
+                        <canvas id="paymentChart" height="200"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: QUẢN LÝ ĐƠN HÀNG -->
+            <section id="tab-orders" class="tab-content hidden space-y-4">
+                <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-700">Danh Sách Xử Lý Đơn Hàng</h3>
+                        <span class="text-xs bg-gray-100 px-3 py-1 rounded">Mã Quốc Gia: DE, FR, US, VN, UK</span>
+                    </div>
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-400 border-b">
+                            <tr>
+                                <th class="p-3">Mã Đơn</th>
+                                <th class="p-3">Mã KH</th>
+                                <th class="p-3">Quốc Gia</th>
+                                <th class="p-3">Tổng Tiền</th>
+                                <th class="p-3">Thanh Toán</th>
+                                <th class="p-3">Trạng Thái</th>
+                                <th class="p-3">Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 font-semibold">#615717</td>
+                                <td class="p-3">CUST007322</td>
+                                <td class="p-3">Germany (DE)</td>
+                                <td class="p-3">$68.20</td>
+                                <td class="p-3"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">Debit Card</span></td>
+                                <td class="p-3"><span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded">Đã Giao (Delivered)</span></td>
+                                <td class="p-3"><button class="text-blue-600 hover:underline text-xs">Chi tiết</button></td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 font-semibold">#626919</td>
+                                <td class="p-3">CUST004717</td>
+                                <td class="p-3">France (FR)</td>
+                                <td class="p-3">$38.73</td>
+                                <td class="p-3"><span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded">Banking / Wallet</span></td>
+                                <td class="p-3"><span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">Đang Xử Lý</span></td>
+                                <td class="p-3"><button class="text-blue-600 hover:underline text-xs">Cập nhật</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 3: FINANCE & ACCOUNTING -->
+            <section id="tab-finance" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-sm text-gray-500">Ngân Sách Budget Quý</div>
+                        <div class="text-xl font-bold text-gray-800 mt-1">$500,000.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-sm text-gray-500">Tổng Chi Phí Vận Chuyển</div>
+                        <div class="text-xl font-bold text-orange-600 mt-1">$142,500.00</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="text-sm text-gray-500">Quỹ Lương Nhân Viên</div>
+                        <div class="text-xl font-bold text-indigo-600 mt-1">$85,000.00 / Tháng</div>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-4">Tính Lương & KPI Nhân Viên</h3>
+                    <p class="text-sm text-gray-500">Bảng tính lương tự động làm tròn số ngày làm việc thành số nguyên.</p>
+                </div>
+            </section>
+
+            <!-- TAB 4: LỊCH SỬ GIAO DỊCH -->
+            <section id="tab-transactions" class="tab-content hidden space-y-4">
+                <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-4">Lịch Sử Giao Dịch & Hóa Đơn</h3>
+                    <p class="text-sm text-gray-500">Danh sách giao dịch và hóa đơn gần đây.</p>
+                </div>
+            </section>
+
+            <!-- TAB 5: NHÂN SỰ -->
+            <section id="tab-hr" class="tab-content hidden space-y-4">
+                <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-4">Quản Lý Nhân Sự & Chấm Công</h3>
+                    <p class="text-sm text-gray-500">Thông tin nhân viên và tình trạng chấm công.</p>
+                </div>
+            </section>
+
+            <!-- TAB 6: PROJECT MANAGEMENT (Hình 1) -->
+            <section id="tab-pm" class="tab-content hidden space-y-6">
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-4">Biểu Đồ Gantt Tiến Độ Đơn Hàng & Công Việc</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Đơn #615717 - Vận chuyển Quốc tế</span>
+                                <span class="text-green-600 font-bold">100% Complete</span>
+                            </div>
+                            <div class="w-full bg-gray-200 h-2.5 rounded-full">
+                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Xử lý đơn hàng tồn kho Quý 3</span>
+                                <span class="text-blue-600 font-bold">65% In Progress</span>
+                            </div>
+                            <div class="w-full bg-gray-200 h-2.5 rounded-full">
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: e-ECONOMO LOGISTICS -->
+            <section id="tab-logistics" class="tab-content hidden space-y-4">
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-4">Thông Tin Vận Chuyển & Shipper</h3>
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead class="bg-gray-50 text-xs uppercase border-b">
+                            <tr>
+                                <th class="p-3">Mã Đơn</th>
+                                <th class="p-3">Mã Vận Đơn</th>
+                                <th class="p-3">Đơn Vị Vận Chuyển</th>
+                                <th class="p-3">Tên Shipper Lấy Đơn</th>
+                                <th class="p-3">Thời Gian Giao (Ngày)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 font-semibold">#615717</td>
+                                <td class="p-3 text-blue-600">LOG-99281-DE</td>
+                                <td class="p-3">Express Shipping</td>
+                                <td class="p-3">Nguyen Van A (Shipper)</td>
+                                <td class="p-3">2 Ngày (Làm tròn: 2)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 6: HÀNG TỒN KHO & NHÂN VIÊN MỚI -->
+            <section id="tab-inventory" class="tab-content hidden space-y-4">
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-2">Thống Kê Hàng Tồn Kho</h3>
+                    <p class="text-sm text-gray-600">Sản phẩm còn tồn kho: <span class="font-bold text-blue-600">14,250 sản phẩm</span></p>
+                </div>
+            </section>
+
+            <!-- TAB 7: ADMIN TEST -->
+            <section id="tab-admintest" class="tab-content hidden space-y-4">
+                <div class="bg-yellow-50 border border-yellow-200 p-5 rounded-xl">
+                    <h3 class="font-bold text-yellow-800 mb-2">Chức Năng Test System cho Admin</h3>
+                    <button onclick="alert('Đã reset dữ liệu mô phỏng thành công!')" class="bg-yellow-600 text-white px-4 py-2 rounded text-sm hover:bg-yellow-700">Simulate Data Trigger</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Khởi tạo biểu tượng Lucide
+        lucide.createIcons();
+
+        // Chuyển đổi Tab
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            const titles = {
+                'dashboard': 'Business Analytics Dashboard',
+                'orders': 'Quản Lý Đơn Hàng & Trạng Thái',
+                'finance': 'Finance & Accounting Management',
+                'transactions': 'Lịch Sử Giao Dịch & Hóa Đơn',
+                'hr': 'Human Resources & Chấm Công',
+                'pm': 'Project Management & Gantt Chart',
+                'logistics': 'e-Economo Logistics',
+                'inventory': 'Quản Lý Hàng Tồn Kho',
+                'admintest': 'Chức Năng Test Cho Admin'
+            };
+            document.getElementById('pageTitle').innerText = titles[tabId] || 'Hệ Thống ERP';
+        }
+
+        // Phân quyền RBAC Dynamic
+        function changeRole(role) {
+            document.getElementById('roleBadge').innerText = 'Quyền: ' + role;
+            document.querySelectorAll('.nav-btn, [data-role]').forEach(el => {
+                const allowedRoles = el.getAttribute('data-role');
+                if (allowedRoles) {
+                    if (allowedRoles.includes(role)) {
+                        el.style.display = 'flex';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                }
+            });
+            // Auto switch to allowed tab if current is hidden
+            if (role === 'User') switchTab('orders');
+            else if (role === 'Accountant') switchTab('orders');
+            else switchTab('dashboard');
+        }
+
+        // Chart.js Configuration
+        window.onload = function() {
+            // Quarterly Revenue Chart
+            const ctx1 = document.getElementById('quarterlyChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1/23', 'Q2/23', 'Q3/23', 'Q4/23', 'Q1/26', 'Q2/26', 'Q3/26', 'Q4/26'],datasets: [{
+                        label: 'Doanh Thu Quý ($)',
+                        data: [809548, 680053, 736123, 736702, 696940, 684917, 736193, 699316],
+                        backgroundColor: '#3b82f6'
+                    }]
+                }
+            });
+
+            // Payment Methods Pie Chart
+            const ctx2 = document.getElementById('paymentChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: ['Tiền Mặt (Cash)', 'Banking / Card', 'QR / Wallet'],
+                    datasets: [{
+                        data: [30, 45, 25],
+                        backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6']
+                    }]
+                }
+            });
+        };
+    </script>
+</body>
+</html>

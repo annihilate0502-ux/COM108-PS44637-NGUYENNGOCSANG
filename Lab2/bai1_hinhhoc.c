@@ -21,7 +21,7 @@ int main() {
     chuViHT = 2 * PI * banKinh;
     dienTichHT = PI * banKinh * banKinh;
 
-    printf("\n--- Ket qua ---\n");
+    printf("\n  Ket qua \n");
     printf("Chu vi hinh chu nhat: %.2f\n", chuViHCN);
     printf("Dien tich hinh chu nhat: %.2f\n", dienTichHCN);
     printf("Chu vi hinh tron: %.2f\n", chuViHT);
