@@ -144,3 +144,4 @@ void chucNang3() {
     printf("So gio: %d\n", soGio);
     printf("Tong tien thanh toan: %.2f\n", tongTien);
 }
+
